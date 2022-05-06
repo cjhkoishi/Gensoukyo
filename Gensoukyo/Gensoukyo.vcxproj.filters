@@ -1,0 +1,108 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="vendor">
+      <UniqueIdentifier>{bf48b0e6-f61b-4673-bcd7-4966ae2f7860}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor\include">
+      <UniqueIdentifier>{dbac5a40-37f1-4275-b9f9-f185cd46eb30}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor\src">
+      <UniqueIdentifier>{a9d419fe-d9c0-4d0f-baf5-fd8c2d8d1001}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="vendor\src\glad.c">
+      <Filter>vendor</Filter>
+    </ClCompile>
+    <ClCompile Include="vendor\include\imgui\imgui_draw.cpp">
+      <Filter>vendor\src</Filter>
+    </ClCompile>
+    <ClCompile Include="vendor\include\imgui\imgui_impl_glfw.cpp">
+      <Filter>vendor\src</Filter>
+    </ClCompile>
+    <ClCompile Include="vendor\include\imgui\imgui_impl_opengl3.cpp">
+      <Filter>vendor\src</Filter>
+    </ClCompile>
+    <ClCompile Include="vendor\include\imgui\imgui_tables.cpp">
+      <Filter>vendor\src</Filter>
+    </ClCompile>
+    <ClCompile Include="vendor\include\imgui\imgui_widgets.cpp">
+      <Filter>vendor\src</Filter>
+    </ClCompile>
+    <ClCompile Include="vendor\include\imgui\imgui.cpp">
+      <Filter>vendor\src</Filter>
+    </ClCompile>
+    <ClCompile Include="vendor\include\imgui\imgui_demo.cpp">
+      <Filter>vendor\src</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="vendor\include\glad\glad.h">
+      <Filter>vendor</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\GLFW\glfw3.h">
+      <Filter>vendor</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\GLFW\glfw3native.h">
+      <Filter>vendor</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\KHR\khrplatform.h">
+      <Filter>vendor</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\imgui\imconfig.h">
+      <Filter>vendor\include</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\imgui\imgui.h">
+      <Filter>vendor\include</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\imgui\imgui_impl_glfw.h">
+      <Filter>vendor\include</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\imgui\imgui_impl_opengl3.h">
+      <Filter>vendor\include</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\imgui\imgui_internal.h">
+      <Filter>vendor\include</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\imgui\imstb_rectpack.h">
+      <Filter>vendor\include</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\imgui\imstb_textedit.h">
+      <Filter>vendor\include</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\imgui\imstb_truetype.h">
+      <Filter>vendor\include</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\imgui\imgui_impl_opengl3_loader.h">
+      <Filter>vendor\include</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
