@@ -3,7 +3,7 @@
 #include "Shader.h"
 #include "Window.h"
 
-bool myframe()
+bool myframe(Window* wind)
 {
 	glClearColor(0, 0, 0, 0);
 
@@ -24,20 +24,30 @@ bool myframe()
 		}
 		ImGui::EndMenuBar();
 	}
-
-	// 编辑颜色 (stored as ~4 floats)
-	float my_color[] = { 0.2f, 0.1f, 1.0f, 0.5f };
-	ImGui::ColorEdit4("Color", my_color);
-
-	// Plot some values
-	const float my_values[] = { 0.2f, 0.1f, 1.0f, 0.5f, 0.9f, 2.2f };
-	ImGui::PlotLines("Frame Times", my_values, IM_ARRAYSIZE(my_values));
+	ImGui::TextColored(ImVec4(1, 1, 0, 1), "Object Tree");
 
 	// 在滚动区域中显示内容
-	ImGui::TextColored(ImVec4(1, 1, 0, 1), "Important Stuff");
+	auto tree = wind->getObjectHierarchy();
 	ImGui::BeginChild("Scrolling");
-	for (int n = 0; n < 50; n++)
-		ImGui::Text("%04d: Some text", n);
+	for (size_t i = 0; i < tree.size(); i++) {
+		int cur_hie = tree[i].hierarchy;
+		if (i + 1 == tree.size() || tree[i + 1].hierarchy <= cur_hie) {
+			ImGui::Text(std::string("   ").append(tree[i].obj->name).c_str());
+		}
+		else {
+			bool is_open = ImGui::TreeNode(tree[i].obj->name.c_str());
+			if (!is_open)
+				while (!(i + 1 == tree.size() || tree[i + 1].hierarchy <= cur_hie))
+					i++;
+		}
+		int end = 0;
+		if (i + 1 != tree.size())
+			end = tree[i + 1].hierarchy;
+		int times = cur_hie - end;
+		for (int j = 0; j < times; j++)
+			ImGui::TreePop();
+	}
+
 	ImGui::EndChild();
 	ImGui::End();
 
@@ -47,13 +57,10 @@ bool myframe()
 }
 
 int main() {
-	
 	Window my_window;
 	my_window.initialize();
-	Shader def("Shader/default.vert", "Shader/default.frag");
-	def.use();
 	my_window.setFrameCallback(myframe);
 	my_window.run();
-	
+
 	return 0;
 }

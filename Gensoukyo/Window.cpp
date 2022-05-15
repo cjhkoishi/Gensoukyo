@@ -1,6 +1,9 @@
 #include "pch.h"
 #include "Window.h"
 
+ShaderAsset shader_asset;
+RenderSystem render_system;
+InputSystem input_system;
 
 bool Window::initialize()
 {
@@ -23,41 +26,102 @@ bool Window::initialize()
 		return false;
 	}
 
-	resize = [](GLFWwindow* window, int width, int height) {glViewport(0, 0, width, height); };
+	auto resize = [](GLFWwindow* window, int width, int height) {
+		glViewport(0, 0, width, height);
+	};
+	auto mouse = [](GLFWwindow* window, int button, int action, int mods) {
+		input_system.mouse[button] = action;
+	};
+	auto move = [](GLFWwindow* window, double xpos, double ypos) {
+		input_system.last_mouse_pos[0] = input_system.mouse_pos[0];
+		input_system.last_mouse_pos[1] = input_system.mouse_pos[1];
+		input_system.mouse_pos[0] = xpos;
+		input_system.mouse_pos[1] = ypos;
+	};
+	auto scroll = [](GLFWwindow* window, double xoffset, double yoffset) {
+		input_system.scroll_offset[0] += xoffset;
+		input_system.scroll_offset[1] += yoffset;
+	};
+
 	glfwSetFramebufferSizeCallback(window, resize);
+	glfwSetMouseButtonCallback(window, mouse);
+	glfwSetCursorPosCallback(window, move);
+	glfwSetScrollCallback(window, scroll);
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
 	ImGui::StyleColorsDark();
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 460");
+
+	shader_asset.asset["default"].compile("shader/default.vert", "shader/default.frag");
+	current_scene.wind = this;
+
 	return true;
 }
 
 void Window::run()
 {
+
+	auto camera_obj = current_scene.createObject("camera");
+	auto camera = camera_obj->addComponent<Camera>();
+	render_system.camera = camera;
+	camera->fov = glm::radians(45.f);
+	camera->aspect = 800 / 600.0;
+	camera->near_z = 0.01;
+	camera->far_z = 1000;
+	camera_obj->setPosition(glm::vec3(0, 0, 5));
+
+	auto my_f = current_scene.createObject("my_f");
+	auto com_f = my_f->addComponent<GizmoRenderer>();
+
+	auto my_fs = current_scene.createObject("my_f_sub");
+	auto com_fs = my_fs->addComponent<GizmoRenderer>();
+	my_fs = current_scene.createObject("my_f_sub2");
+	com_fs = my_fs->addComponent<GizmoRenderer>();
+	my_fs = current_scene.createObject("my_f_sub3");
+	com_fs = my_fs->addComponent<GizmoRenderer>();
+
+	current_scene.container[2].hierarchy = 1;
+	current_scene.container[2].obj->setPosition(glm::vec3(0, 0, 1));
+	current_scene.container[3].hierarchy = 2;
+	current_scene.container[3].obj->setPosition(glm::vec3(1, 0, 0));
+	current_scene.container[4].hierarchy = 0;
+	current_scene.container[4].obj->setPosition(glm::vec3(0, 1, 0));
+
 	while (!glfwWindowShouldClose(window))
 	{
 		glClear(GL_COLOR_BUFFER_BIT);
+
+
+		current_scene.container[1].obj->setRotation(
+			glm::angleAxis<float>(0.01, glm::normalize(glm::vec3(1, 1, 1))) * current_scene.container[1].obj->getRotation()
+		);
+		current_scene.update();
+
+		//render system
+		render_system.run();
+
+		//GUI system
 		if (frame != NULL)
 		{
-			bool res=frame();
+			bool res = frame(this);
 			if (!res)
 				break;
 		}
-
-		
-
-
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
 }
 
-Window::Window():
+std::vector<Scene::DAGNode> Window::getObjectHierarchy()
+{
+	return current_scene.container;
+}
+
+Window::Window() :
 	window(nullptr),
-	frame(NULL),
-	resize(NULL)
+	frame(NULL)
 {
 }
 
@@ -67,4 +131,13 @@ Window::~Window()
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
 	glfwTerminate();
+}
+
+void RenderSystem::run()
+{
+
+	for (auto it : render_buffer) {
+		it->paint();
+	}
+	render_buffer.clear();
 }
