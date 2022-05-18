@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Window.h"
+#include "BVH.h"
 
 ShaderAsset shader_asset;
 RenderSystem render_system;
@@ -42,11 +43,15 @@ bool Window::initialize()
 		input_system.scroll_offset[0] += xoffset;
 		input_system.scroll_offset[1] += yoffset;
 	};
-
+	//std::cout << get(window) << std::endl;
 	glfwSetFramebufferSizeCallback(window, resize);
 	glfwSetMouseButtonCallback(window, mouse);
 	glfwSetCursorPosCallback(window, move);
 	glfwSetScrollCallback(window, scroll);
+
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
@@ -55,6 +60,7 @@ bool Window::initialize()
 	ImGui_ImplOpenGL3_Init("#version 460");
 
 	shader_asset.asset["default"].compile("shader/default.vert", "shader/default.frag");
+	shader_asset.asset["mesh"].compile("shader/mesh.vert", "shader/mesh.frag");
 	current_scene.wind = this;
 
 	return true;
@@ -65,38 +71,41 @@ void Window::run()
 
 	auto camera_obj = current_scene.createObject("camera");
 	auto camera = camera_obj->addComponent<Camera>();
+
+
 	render_system.camera = camera;
 	camera->fov = glm::radians(45.f);
-	camera->aspect = 800 / 600.0;
-	camera->near_z = 0.01;
+	camera->aspect = 800 / 600.f;
+	camera->near_z = 0.01f;
 	camera->far_z = 1000;
 	camera_obj->setPosition(glm::vec3(0, 0, 5));
 
 	auto my_f = current_scene.createObject("my_f");
-	auto com_f = my_f->addComponent<GizmoRenderer>();
+	auto mesh = my_f->addComponent<Mesh>();
+	mesh->loadFromFile("models/bunny.obj");
+	my_f->addComponent<MeshRenderer>();
 
-	auto my_fs = current_scene.createObject("my_f_sub");
-	auto com_fs = my_fs->addComponent<GizmoRenderer>();
-	my_fs = current_scene.createObject("my_f_sub2");
-	com_fs = my_fs->addComponent<GizmoRenderer>();
-	my_fs = current_scene.createObject("my_f_sub3");
-	com_fs = my_fs->addComponent<GizmoRenderer>();
+	std::vector<BoundingBox> boxs(mesh->faces.size());
+	auto& F = mesh->faces;
+	auto& V = mesh->vertices;
+	for (int i = 0; i < boxs.size(); i++) {
+		boxs[i].AA.x = std::min(std::min(V[F[i][0]].x, V[F[i][1]].x), V[F[i][2]].x);
+		boxs[i].AA.y = std::min(std::min(V[F[i][0]].y, V[F[i][1]].y), V[F[i][2]].y);
+		boxs[i].AA.z = std::min(std::min(V[F[i][0]].z, V[F[i][1]].z), V[F[i][2]].z);
+		boxs[i].BB.x = std::max(std::max(V[F[i][0]].x, V[F[i][1]].x), V[F[i][2]].x);
+		boxs[i].BB.y = std::max(std::max(V[F[i][0]].y, V[F[i][1]].y), V[F[i][2]].y);
+		boxs[i].BB.z = std::max(std::max(V[F[i][0]].z, V[F[i][1]].z), V[F[i][2]].z);
+		boxs[i].center = (V[F[i][0]] + V[F[i][1]] + V[F[i][2]]) / 3.f;
+	}
 
-	current_scene.container[2].hierarchy = 1;
-	current_scene.container[2].obj->setPosition(glm::vec3(0, 0, 1));
-	current_scene.container[3].hierarchy = 2;
-	current_scene.container[3].obj->setPosition(glm::vec3(1, 0, 0));
-	current_scene.container[4].hierarchy = 0;
-	current_scene.container[4].obj->setPosition(glm::vec3(0, 1, 0));
+	BVHNode* bunny = constructBVH(boxs, 0, boxs.size()-1, 200);
+	my_f->addComponent<BVHRenderer>()->bvh=bunny;
+
 
 	while (!glfwWindowShouldClose(window))
 	{
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
-		current_scene.container[1].obj->setRotation(
-			glm::angleAxis<float>(0.01, glm::normalize(glm::vec3(1, 1, 1))) * current_scene.container[1].obj->getRotation()
-		);
 		current_scene.update();
 
 		//render system

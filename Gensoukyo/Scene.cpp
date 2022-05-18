@@ -15,7 +15,7 @@ void Scene::update()
 			int times = current_hierarchy - it.hierarchy + 1;
 			for (int i = 0; i < times; i++)
 				model.pop();
-		}		
+		}
 		it.update();
 		current_hierarchy = it.hierarchy;
 	}
@@ -23,7 +23,8 @@ void Scene::update()
 	if (!!wind) {
 		int w, h;
 		glfwGetWindowSize(wind->getGLFWWindow(), &w, &h);
-		render_system.camera->aspect = (float)w / h;
+		if (w != 0 && h != 0)
+			render_system.camera->aspect = (float)w / h;
 		render_system.camera->getViewMat(view);
 		render_system.camera->getProjMat(projection);
 	}
@@ -31,15 +32,15 @@ void Scene::update()
 
 Object* Scene::createObject(std::string name)
 {
-	Object* obj= new Object;
+	Object* obj = new Object;
 	obj->name = name;
 	obj->location = this;
 	obj->local_transform = glm::mat4(1.f);
-	container.push_back(DAGNode(obj,0));
+	container.push_back(DAGNode(obj, 0));
 	return obj;
 }
 
-Scene::Scene():
+Scene::Scene() :
 	view(glm::mat4(1)),
 	projection(glm::mat4(1)),
 	wind(NULL)
@@ -50,8 +51,8 @@ Scene::Scene():
 void Scene::DAGNode::update()
 {
 	obj->update();
-	auto& model_s=obj->location->model;
-	model_s.push(model_s.top()*obj->local_transform);
+	auto& model_s = obj->location->model;
+	model_s.push(model_s.top() * obj->local_transform);
 	obj->world_transform = model_s.top();
 }
 

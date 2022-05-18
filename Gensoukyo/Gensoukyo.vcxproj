@@ -153,6 +153,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BVH.cpp" />
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Object.cpp" />
@@ -194,6 +195,7 @@
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BVH.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="pch.h" />
@@ -217,6 +219,8 @@
   <ItemGroup>
     <None Include="shader\default.frag" />
     <None Include="shader\default.vert" />
+    <None Include="shader\mesh.frag" />
+    <None Include="shader\mesh.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
