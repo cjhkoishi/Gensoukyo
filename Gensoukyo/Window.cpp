@@ -98,7 +98,7 @@ void Window::run()
 		boxs[i].center = (V[F[i][0]] + V[F[i][1]] + V[F[i][2]]) / 3.f;
 	}
 
-	BVHNode* bunny = constructBVH(boxs, 0, boxs.size()-1, 200);
+	BVHNode* bunny = constructBVH(boxs, 0, boxs.size()-1, 10);
 	my_f->addComponent<BVHRenderer>()->bvh=bunny;
 
 
