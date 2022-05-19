@@ -221,6 +221,8 @@
     <None Include="shader\default.vert" />
     <None Include="shader\mesh.frag" />
     <None Include="shader\mesh.vert" />
+    <None Include="shader\ray_tracing.frag" />
+    <None Include="shader\ray_tracing.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

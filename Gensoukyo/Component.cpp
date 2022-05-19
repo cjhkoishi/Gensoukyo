@@ -202,7 +202,7 @@ MeshRenderer::MeshRenderer() :
 {
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	
+
 
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
@@ -227,8 +227,8 @@ void BVHRenderer::paint()
 	glUniformMatrix4fv(glGetUniformLocation(shader.ID, "camera_transform"), 1, GL_FALSE, (GLfloat*)&render_system.camera->owner->local_transform);
 	glUniformMatrix4fv(glGetUniformLocation(shader.ID, "projection"), 1, GL_FALSE, (GLfloat*)&owner->location->projection);
 
-	auto drawnode = [](auto&& fun,BVHNode* node) {
-		if (node->left == NULL && node->right == NULL) {
+	auto drawnode = [](auto&& fun, BVHNode* node, int depth) {
+		if (depth > 10 || node->left == NULL && node->right == NULL) {
 			glm::vec3 verts[8];
 			verts[0].x = verts[2].x = verts[4].x = verts[6].x = node->AA.x;
 			verts[0].y = verts[1].y = verts[4].y = verts[5].y = node->AA.y;
@@ -236,17 +236,19 @@ void BVHRenderer::paint()
 			verts[1].x = verts[3].x = verts[5].x = verts[7].x = node->BB.x;
 			verts[2].y = verts[3].y = verts[6].y = verts[7].y = node->BB.y;
 			verts[4].z = verts[5].z = verts[6].z = verts[7].z = node->BB.z;
-			glBufferSubData(GL_ARRAY_BUFFER, 0, 24*4, verts);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, 24 * 4, verts);
 			glDrawElements(GL_LINES, 24, GL_UNSIGNED_INT, 0);
 			return;
 		}
-		fun(fun,node->left);
-		fun(fun,node->right);
+		fun(fun, node->left, depth + 1);
+		fun(fun, node->right, depth + 1);
 	};
-	drawnode(drawnode,bvh);
+	if (bvh)
+		drawnode(drawnode, bvh, 0);
 }
 
-BVHRenderer::BVHRenderer()
+BVHRenderer::BVHRenderer() :
+	bvh(NULL)
 {
 	unsigned indices[24]{
 		0,1,
@@ -277,5 +279,22 @@ BVHRenderer::BVHRenderer()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-	shader=shader_asset.asset["default"];
+	shader = shader_asset.asset["default"];
+}
+
+RayTracingRenderer::RayTracingRenderer() {
+
+	float data[6] = {0,1,2,3,4,5};
+	
+	glGenBuffers(1, &TBO);
+	glBindBuffer(GL_TEXTURE_BUFFER, TBO);
+	glBufferData(GL_TEXTURE_BUFFER,  sizeof(data), data, GL_STATIC_DRAW);
+	glGenTextures(1, &TEX);
+	glBindTexture(GL_TEXTURE_BUFFER, TEX);
+	glTexBuffer(GL_TEXTURE_BUFFER, GL_RGB32F, TBO);
+}
+
+void RayTracingRenderer::paint() {
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_BUFFER, TEX);
 }

@@ -12,6 +12,7 @@ bool Window::initialize()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	//glfwWindowHint(GLFW_SAMPLES, 16);
 	window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
 	if (window == NULL)
 	{
@@ -51,6 +52,8 @@ bool Window::initialize()
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
+	//glEnable(GL_BLEND);
+	//glEnable(GL_MULTISAMPLE);
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -96,9 +99,10 @@ void Window::run()
 		boxs[i].BB.y = std::max(std::max(V[F[i][0]].y, V[F[i][1]].y), V[F[i][2]].y);
 		boxs[i].BB.z = std::max(std::max(V[F[i][0]].z, V[F[i][1]].z), V[F[i][2]].z);
 		boxs[i].center = (V[F[i][0]] + V[F[i][1]] + V[F[i][2]]) / 3.f;
+		boxs[i].index = i;
 	}
 
-	BVHNode* bunny = constructBVH(boxs, 0, boxs.size()-1, 10);
+	BVHNode* bunny = constructBVH(boxs, 0, boxs.size()-1, 1);
 	my_f->addComponent<BVHRenderer>()->bvh=bunny;
 
 

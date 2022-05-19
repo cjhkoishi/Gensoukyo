@@ -92,5 +92,11 @@ public:
 
 class RayTracingRenderer :public Renderer {
 	COMPONENT
+public:
+	GLuint TBO,TEX;
+
+	void paint() override;
+
+	RayTracingRenderer();
 };
 

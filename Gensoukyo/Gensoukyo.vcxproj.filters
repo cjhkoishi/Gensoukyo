@@ -151,5 +151,11 @@
     <None Include="shader\mesh.vert">
       <Filter>shader</Filter>
     </None>
+    <None Include="shader\ray_tracing.frag">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\ray_tracing.vert">
+      <Filter>shader</Filter>
+    </None>
   </ItemGroup>
 </Project>
