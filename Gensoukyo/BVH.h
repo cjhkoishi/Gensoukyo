@@ -14,4 +14,4 @@ struct BoundingBox {
     int index;
 };
 
-BVHNode* constructBVH(std::vector<BoundingBox> objects, int l, int r, int n);
+BVHNode* constructBVH(std::vector<BoundingBox>& objects, int l, int r, int n);

@@ -7,7 +7,11 @@ uniform mat4 camera_transform;
 uniform mat4 projection;
 
 uniform samplerBuffer triangles;
+uniform samplerBuffer BVH_nodes;
+
+out vec4 world_pos;
 
 void main(){
-    gl_Position=projection*view*model*vec4(aPos,1);
+    world_pos=model*vec4(aPos,1);
+    gl_Position=projection*view*world_pos;
 }

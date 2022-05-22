@@ -52,7 +52,7 @@ bool Window::initialize()
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
-	//glEnable(GL_BLEND);
+	glEnable(GL_BLEND);
 	//glEnable(GL_MULTISAMPLE);
 
 	IMGUI_CHECKVERSION();
@@ -64,6 +64,8 @@ bool Window::initialize()
 
 	shader_asset.asset["default"].compile("shader/default.vert", "shader/default.frag");
 	shader_asset.asset["mesh"].compile("shader/mesh.vert", "shader/mesh.frag");
+	shader_asset.asset["ray_tracing"].compile("shader/ray_tracing.vert", "shader/ray_tracing.frag");
+	shader_asset.asset["ray_tracing_pass2"].compile("shader/ray_tracing_pass2.vert", "shader/ray_tracing_pass2.frag");
 	current_scene.wind = this;
 
 	return true;
@@ -75,6 +77,14 @@ void Window::run()
 	auto camera_obj = current_scene.createObject("camera");
 	auto camera = camera_obj->addComponent<Camera>();
 
+	auto mask = current_scene.createObject("ray_tracing_mask");
+	current_scene.container[1].hierarchy = 1;
+	auto mask_mesh = mask->addComponent<Mesh>();
+	mask_mesh->vertices = { {-1,-1,-1},{1,-1,-1},{-1,1,-1},{1,1,-1} };
+	mask_mesh->faces = { {0,1,3},{0,3,2} };
+	auto rt=mask->addComponent<RayTracingRenderer>();
+	rt->watcher = camera;
+	
 
 	render_system.camera = camera;
 	camera->fov = glm::radians(45.f);
@@ -83,11 +93,10 @@ void Window::run()
 	camera->far_z = 1000;
 	camera_obj->setPosition(glm::vec3(0, 0, 5));
 
-	auto my_f = current_scene.createObject("my_f");
+	auto my_f = current_scene.createObject("bunny");
 	auto mesh = my_f->addComponent<Mesh>();
 	mesh->loadFromFile("models/bunny.obj");
-	my_f->addComponent<MeshRenderer>();
-
+	my_f->addComponent<MeshRenderer>()->isVisible=false;
 	std::vector<BoundingBox> boxs(mesh->faces.size());
 	auto& F = mesh->faces;
 	auto& V = mesh->vertices;
@@ -101,9 +110,13 @@ void Window::run()
 		boxs[i].center = (V[F[i][0]] + V[F[i][1]] + V[F[i][2]]) / 3.f;
 		boxs[i].index = i;
 	}
-
-	BVHNode* bunny = constructBVH(boxs, 0, boxs.size()-1, 1);
-	my_f->addComponent<BVHRenderer>()->bvh=bunny;
+	BVHNode* bunny = constructBVH(boxs, 0, boxs.size() - 1, 2);
+	auto bvh_data = my_f->addComponent<BVHRenderer>();
+	bvh_data->bvh = bunny;
+	bvh_data->boxs = boxs;
+	bvh_data->isVisible = false;
+	
+	rt->rayTracingData = my_f;
 
 
 	while (!glfwWindowShouldClose(window))
@@ -133,7 +146,7 @@ std::vector<Scene::DAGNode> Window::getObjectHierarchy()
 }
 
 Window::Window() :
-	window(nullptr),
+	window(NULL),
 	frame(NULL)
 {
 }

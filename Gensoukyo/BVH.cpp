@@ -12,7 +12,7 @@ bool cmpz(const BoundingBox& obj1, const BoundingBox& obj2) {
     return obj1.center.z < obj2.center.z;
 }
 
-BVHNode* constructBVH(std::vector<BoundingBox> objects, int l, int r, int n)
+BVHNode* constructBVH(std::vector<BoundingBox>& objects, int l, int r, int n)
 {
     if (l > r) return 0;
 
@@ -23,13 +23,13 @@ BVHNode* constructBVH(std::vector<BoundingBox> objects, int l, int r, int n)
     // 计算 AABB
     for (int i = l; i <= r; i++) {
         // 最小点 AA
-        node->AA.x = min(node->AA.x, objects[i].AA.x);
-        node->AA.y = min(node->AA.y, objects[i].AA.y);
-        node->AA.z = min(node->AA.z, objects[i].AA.z);
+        node->AA.x = std::min(node->AA.x, objects[i].AA.x);
+        node->AA.y = std::min(node->AA.y, objects[i].AA.y);
+        node->AA.z = std::min(node->AA.z, objects[i].AA.z);
         // 最大点 BB
-        node->BB.x = max(node->BB.x, objects[i].BB.x);
-        node->BB.y = max(node->BB.y, objects[i].BB.y);
-        node->BB.z = max(node->BB.z, objects[i].BB.z);
+        node->BB.x = std::max(node->BB.x, objects[i].BB.x);
+        node->BB.y = std::max(node->BB.y, objects[i].BB.y);
+        node->BB.z = std::max(node->BB.z, objects[i].BB.z);
     }
 
     // 不多于 n 个三角形 返回叶子节点
@@ -75,13 +75,13 @@ BVHNode* constructBVH(std::vector<BoundingBox> objects, int l, int r, int n)
             auto& t = objects[i];
             int bias = (i == l) ? 0 : 1;  // 第一个元素特殊处理
 
-            leftMax[i - l].x = max(leftMax[i - l - bias].x, t.BB.x);
-            leftMax[i - l].y = max(leftMax[i - l - bias].y, t.BB.y);
-            leftMax[i - l].z = max(leftMax[i - l - bias].z, t.BB.z);
+            leftMax[i - l].x = std::max(leftMax[i - l - bias].x, t.BB.x);
+            leftMax[i - l].y = std::max(leftMax[i - l - bias].y, t.BB.y);
+            leftMax[i - l].z = std::max(leftMax[i - l - bias].z, t.BB.z);
 
-            leftMin[i - l].x = min(leftMin[i - l - bias].x, t.AA.x);
-            leftMin[i - l].y = min(leftMin[i - l - bias].y, t.AA.y);
-            leftMin[i - l].z = min(leftMin[i - l - bias].z, t.AA.z);
+            leftMin[i - l].x = std::min(leftMin[i - l - bias].x, t.AA.x);
+            leftMin[i - l].y = std::min(leftMin[i - l - bias].y, t.AA.y);
+            leftMin[i - l].z = std::min(leftMin[i - l - bias].z, t.AA.z);
         }
 
         // rightMax[i]: [i, r] 中最大的 xyz 值
@@ -93,13 +93,13 @@ BVHNode* constructBVH(std::vector<BoundingBox> objects, int l, int r, int n)
             auto& t = objects[i];
             int bias = (i == r) ? 0 : 1;  // 第一个元素特殊处理
 
-            rightMax[i - l].x = max(rightMax[i - l + bias].x, t.BB.x);
-            rightMax[i - l].y = max(rightMax[i - l + bias].y, t.BB.y);
-            rightMax[i - l].z = max(rightMax[i - l + bias].z, t.BB.z);
+            rightMax[i - l].x = std::max(rightMax[i - l + bias].x, t.BB.x);
+            rightMax[i - l].y = std::max(rightMax[i - l + bias].y, t.BB.y);
+            rightMax[i - l].z = std::max(rightMax[i - l + bias].z, t.BB.z);
 
-            rightMin[i - l].x = min(rightMin[i - l + bias].x, t.AA.x);
-            rightMin[i - l].y = min(rightMin[i - l + bias].y, t.AA.y);
-            rightMin[i - l].z = min(rightMin[i - l + bias].z, t.AA.z);
+            rightMin[i - l].x = std::min(rightMin[i - l + bias].x, t.AA.x);
+            rightMin[i - l].y = std::min(rightMin[i - l + bias].y, t.AA.y);
+            rightMin[i - l].z = std::min(rightMin[i - l + bias].z, t.AA.z);
         }
 
         // 遍历寻找分割

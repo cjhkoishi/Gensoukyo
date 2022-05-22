@@ -22,6 +22,7 @@ public:
 	float fov;
 	float near_z, far_z;
 	float aspect;
+	bool isChanged = false;
 
 	void getProjMat(glm::mat4& mat) const;
 	void getViewMat(glm::mat4& mat) const;
@@ -34,6 +35,8 @@ class Renderer :public Component
 {
 	COMPONENT
 public:
+	bool isVisible = true;
+
 	void update() override;
 
 	virtual void paint() = 0;
@@ -55,8 +58,9 @@ class Mesh :public Component
 {
 	COMPONENT
 public:
-	std::vector<glm::vec3> vertices;
-	std::vector<glm::ivec3> faces;
+	vector<vec3> vertices;
+	vector<ivec3> faces;
+	vector<vec3> normals;
 
 	void update() override;
 	void loadFromFile(std::string filename);
@@ -84,7 +88,9 @@ class BVHRenderer :public Renderer {
 public:
 	Shader shader;
 	BVHNode* bvh;
+	vector<BoundingBox> boxs;
 	unsigned VBO, VAO, EBO;
+
 
 	void paint() override;
 	BVHRenderer();
@@ -93,7 +99,11 @@ public:
 class RayTracingRenderer :public Renderer {
 	COMPONENT
 public:
-	GLuint TBO,TEX;
+	Camera* watcher;
+	GLuint TBO[2], TEX[2], VAO, VBO, EBO, FBO, SUM_TEX, PRE_FBO, PRE_TEX, SUM_VBO, SUM_EBO;
+	Shader shader, shader_pass2;
+	Object* rayTracingData = NULL;
+	int render_proc = 0;
 
 	void paint() override;
 

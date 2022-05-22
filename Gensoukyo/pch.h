@@ -9,7 +9,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/quaternion.hpp>
-
+using namespace glm;
 
 #include <iostream>
 #include <fstream>
@@ -22,3 +22,4 @@
 #include <set>
 #include <functional>
 #include <algorithm>
+using namespace std;
