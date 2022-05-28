@@ -100,7 +100,7 @@ class RayTracingRenderer :public Renderer {
 	COMPONENT
 public:
 	Camera* watcher;
-	GLuint TBO[2], TEX[2], VAO, VBO, EBO, FBO, SUM_TEX, PRE_FBO, PRE_TEX, SUM_VBO, SUM_EBO;
+	GLuint TBO[2], TEX[2], VAO, VBO, EBO, FBO, SUM_TEX, PRE_FBO, PRE_TEX, SUM_VBO, SUM_EBO, HDR;
 	Shader shader, shader_pass2;
 	Object* rayTracingData = NULL;
 	int render_proc = 0;

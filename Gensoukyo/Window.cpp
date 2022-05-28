@@ -80,7 +80,7 @@ void Window::run()
 	auto mask = current_scene.createObject("ray_tracing_mask");
 	current_scene.container[1].hierarchy = 1;
 	auto mask_mesh = mask->addComponent<Mesh>();
-	mask_mesh->vertices = { {-1,-1,-1},{1,-1,-1},{-1,1,-1},{1,1,-1} };
+	mask_mesh->vertices = { {0,-1,-1},{1,-1,-1},{0,1,-1},{1,1,-1} };
 	mask_mesh->faces = { {0,1,3},{0,3,2} };
 	auto rt=mask->addComponent<RayTracingRenderer>();
 	rt->watcher = camera;
@@ -96,7 +96,7 @@ void Window::run()
 	auto my_f = current_scene.createObject("bunny");
 	auto mesh = my_f->addComponent<Mesh>();
 	mesh->loadFromFile("models/bunny.obj");
-	my_f->addComponent<MeshRenderer>()->isVisible=false;
+	my_f->addComponent<MeshRenderer>()->isVisible=true;
 	std::vector<BoundingBox> boxs(mesh->faces.size());
 	auto& F = mesh->faces;
 	auto& V = mesh->vertices;
@@ -114,7 +114,7 @@ void Window::run()
 	auto bvh_data = my_f->addComponent<BVHRenderer>();
 	bvh_data->bvh = bunny;
 	bvh_data->boxs = boxs;
-	bvh_data->isVisible = false;
+	//bvh_data->isVisible = false;
 	
 	rt->rayTracingData = my_f;
 

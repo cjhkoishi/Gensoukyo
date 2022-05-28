@@ -3,6 +3,8 @@
 #include "Object.h"
 #include "Shader.h"
 #include "Window.h"
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
 
 
 void encodeTriangles(
@@ -404,6 +406,16 @@ RayTracingRenderer::RayTracingRenderer() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, PRE_TEX, 0);
 
+	int w, h, comp;
+	float* img = stbi_loadf("hdr/kay.hdr", &w, &h, &comp, 4);
+	cout << w << h << endl;
+	glGenTextures(1, &HDR);
+	glBindTexture(GL_TEXTURE_2D, HDR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, w, h, 0, GL_RGBA, GL_FLOAT, img);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	stbi_image_free(img);
+
 	shader = shader_asset.asset["ray_tracing"];
 	shader_pass2 = shader_asset.asset["ray_tracing_pass2"];
 }
@@ -480,6 +492,9 @@ void RayTracingRenderer::paint() {
 	glBindBuffer(GL_TEXTURE_BUFFER, TBO[1]);
 	glBindTexture(GL_TEXTURE_BUFFER, TEX[1]);
 	glUniform1i(glGetUniformLocation(shader.ID, "BVH_nodes"), 1);
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D,HDR);
+	glUniform1i(glGetUniformLocation(shader.ID, "hdr"), 2);
 
 	if (render_proc != 0) {
 		for (int i = 0; i < 10; i++) {

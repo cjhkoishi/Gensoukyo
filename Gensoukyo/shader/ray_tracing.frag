@@ -10,6 +10,7 @@ uniform int rand_seed;
 
 uniform samplerBuffer triangles;
 uniform samplerBuffer BVH_nodes;
+uniform sampler2D hdr;
 
 in vec4 world_pos;
 
@@ -142,7 +143,7 @@ bool ray_hit_triangle_with_normals(in vec3 ray_pos,in vec3 ray_dir, in mat3 v,in
 
 
 
-bool hit_bvh(in vec3 ray_pos,in vec3 ray_dir,out float t,out vec3 hit_pt,out vec3 hit_normal){
+bool hit_bvh(in vec3 ray_pos,in vec3 ray_dir,out float t,out vec3 hit_pt,out vec3 hit_normal,out int index_obj){
     ivec2 stack[16];//ivec2(process,parent_ptr)
     int stack_ptr=0;
     stack[0]=ivec2(0,-1);
@@ -152,7 +153,7 @@ bool hit_bvh(in vec3 ray_pos,in vec3 ray_dir,out float t,out vec3 hit_pt,out vec
     BVHNode current,child;
     current=load_bvh(0);
 
-    t=999999;
+    t=1.0/+0.0;
     float current_t;
     vec3 current_pt;
     vec3 current_n;
@@ -209,6 +210,7 @@ bool hit_bvh(in vec3 ray_pos,in vec3 ray_dir,out float t,out vec3 hit_pt,out vec
                                 t=current_t;
                                 hit_pt=current_pt;
                                 hit_normal=current_n;
+                                index_obj=obj_index<2?0:2;
                             }
                             res=true;
                         }
@@ -283,9 +285,11 @@ void BRDF(in int id,in vec3 ray,in vec3 n,in float t,out vec3 ray_out,out vec3 l
     }
 }
 
+vec3 rand_offset=vec3(0);
+
 bool hit(in vec3 ray_pos,in vec3 ray_dir,out float t,out vec3 hit_pt,out vec3 hit_normal,out int index_obj)
 {
-    return hit_bvh(ray_pos,ray_dir,t,hit_pt,hit_normal);
+    return hit_bvh(ray_pos,ray_dir,t,hit_pt,hit_normal,index_obj);
 }
 
 vec4 raytracing(in vec3 ray_pos,in vec3 ray_dir)
@@ -297,7 +301,7 @@ vec4 raytracing(in vec3 ray_pos,in vec3 ray_dir)
 
     float t;
     vec3 hit_pt,hit_normal;
-    int index_obj;
+    int index_obj=0;
 
     for(int depth=0;depth<8;depth++)
     {
@@ -307,22 +311,24 @@ vec4 raytracing(in vec3 ray_pos,in vec3 ray_dir)
         vec3 cur_o;
         if(res)
         {
-            ray_pos=hit_pt;
-            BRDF(2,dir,hit_normal,t,ray_dir,cur_e,cur_o);            
+            BRDF(index_obj,dir,hit_normal,t,ray_dir,cur_e,cur_o);   
+            ray_pos=hit_pt+0.001*ray_dir;       
             result_color+=cur_e*Lo;
             Lo*=cur_o;
         }else{
             float theta=atan(ray_dir.z,ray_dir.x)*0.15915494+0.5;
             float phi=atan(-ray_dir.y/length(ray_dir.xz))*0.15915494*2+0.5;
-            //vec4 h=texture(hdr,vec2(theta,phi));
-            //result_color+=h.xyz*Lo;
-            result_color=vec3((phi>0.2&&phi<0.4)&&(theta<0.1)?4:0.01)*Lo;
+            vec4 h=texture(hdr,vec2(theta,phi));
+            result_color+=h.xyz*Lo;
+            //result_color=vec3((phi>0.2&&phi<0.4)&&(theta<0.1)?4:0.01)*Lo;
             break;
         }
     }
 
     return vec4(result_color,0);
 }
+
+
 
 void main(){
     vec2 screen=vec2(800,600);
@@ -344,7 +350,8 @@ void main(){
     //    N=1;
     vec4 color=vec4(0,0,0,1);
     for(int i=0;i<N;i++){
-        color.xyz+=raytracing(ray_pos,ray_dir).xyz;
+        rand_offset=vec3(random()*0.1);
+        color.xyz+=raytracing(ray_pos+rand_offset,ray_dir).xyz;
     }
     color.xyz/=N;
     FragColor=color;
